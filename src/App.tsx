@@ -15,7 +15,7 @@ const DISCOVERY = {
     'Filter and compare across venues',
     'Spot the odds before the crowd',
   ],
-  image: '/app/pulse-dashboard.png',
+  image: `${import.meta.env.BASE_URL}app/pulse-dashboard.png`,
   imageAlt: 'Pulse dashboard — the feed of news and signals linked to your positions',
   windowSide: 'right',
   withDunes: true,
