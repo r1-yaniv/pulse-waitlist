@@ -44,7 +44,7 @@ export default function TrailerHero() {
         <video
           ref={videoRef}
           className="trailer-feather block aspect-video w-full"
-          src="/pulse-trailer.mp4"
+          src={`${import.meta.env.BASE_URL}pulse-trailer.mp4`}
           autoPlay
           muted
           loop

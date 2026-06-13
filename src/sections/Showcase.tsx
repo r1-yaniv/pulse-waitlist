@@ -153,7 +153,7 @@ export default function Showcase({
       {withDunes && (
         <div className="sc-dunes pointer-events-none absolute bottom-[-1px] left-0 z-10 h-[58%] w-full">
           <img
-            src="/scenery/dunes.png"
+            src={`${import.meta.env.BASE_URL}scenery/dunes.png`}
             alt=""
             className="h-full w-full object-cover object-top"
           />
