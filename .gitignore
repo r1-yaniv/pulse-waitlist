@@ -1,0 +1,8 @@
+node_modules
+dist
+server/data
+.DS_Store
+*.local
+
+# build cache
+tsconfig.tsbuildinfo
