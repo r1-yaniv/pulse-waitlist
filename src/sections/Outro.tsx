@@ -58,7 +58,7 @@ export default function Outro() {
             WebkitBackgroundClip: 'text',
           }}
         >
-          pulse
+          Pulse
         </span>
       </div>
 
@@ -75,7 +75,6 @@ export default function Outro() {
           from the noise.
         </h2>
       </div>
-
       <p className="absolute right-10 bottom-7 text-[11px] tracking-[1.5px] text-fg-dim max-md:right-1/2 max-md:translate-x-1/2">
         © 2026 · PULSE · BY ROOMONE
       </p>

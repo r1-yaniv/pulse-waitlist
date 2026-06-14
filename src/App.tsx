@@ -5,6 +5,7 @@ import TopBar from './components/TopBar'
 import TrailerHero from './sections/TrailerHero'
 import Showcase from './sections/Showcase'
 import Outro from './sections/Outro'
+import WaitlistCTA from './components/WaitlistCTA'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -21,7 +22,7 @@ const DISCOVERY = {
   imageAlt: 'Pulse surfacing a live signal notification tied to your positions',
   video: true,
   windowSide: 'right',
-  withDunes: true,
+  withDunes: false,
 } as const
 
 export default function App() {
@@ -44,6 +45,7 @@ export default function App() {
       <TrailerHero videoRef={videoRef} />
       <Showcase {...DISCOVERY} />
       <Outro />
+      <WaitlistCTA />
     </main>
   )
 }
