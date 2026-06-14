@@ -40,7 +40,7 @@ export default function App() {
   }
 
   return (
-    <main>
+    <main className="relative">
       <TopBar muted={muted} onToggleMuted={toggleMuted} />
       <TrailerHero videoRef={videoRef} />
       <Showcase {...DISCOVERY} />

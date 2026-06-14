@@ -1,6 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 type Choice = 'updates' | 'message'
+
+/** Current waitlist size, shown as social proof under the pill. */
+const WAITLIST_COUNT = 2847
 
 /**
  * Floating waitlist CTA. Collapsed it's a compact accent pill ("join the
@@ -17,6 +22,11 @@ export default function WaitlistCTA() {
   const [expanded, setExpanded] = useState(false)
   const [value, setValue] = useState('')
   const [choice, setChoice] = useState<Choice | null>(null)
+  // Once the pill reaches its dock line in the Outro it stops floating and
+  // anchors into the page at the position it occupied — so further scrolling
+  // leaves it behind. dockTopRef holds that snapshotted document Y (px).
+  const [docked, setDocked] = useState(false)
+  const dockTopRef = useRef(0)
   const rootRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -49,14 +59,43 @@ export default function WaitlistCTA() {
     }
   }, [expanded])
 
+  // Dock the pill at the .cta-dock marker (in the Outro). The trigger fires
+  // when the marker reaches the 7vh-from-bottom line — exactly where the
+  // floating pill's bottom already sits — so we snapshot the pill's current
+  // document position and switch fixed → absolute with no visual jump. Scrolling
+  // back above the line re-floats it.
+  useLayoutEffect(() => {
+    const dock = document.querySelector<HTMLElement>('.cta-dock')
+    if (!dock) return
+    const ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: dock,
+        start: 'top bottom-=7vh',
+        invalidateOnRefresh: true,
+        onEnter: () => {
+          const root = rootRef.current
+          if (root) {
+            dockTopRef.current = root.getBoundingClientRect().top + window.scrollY
+          }
+          setDocked(true)
+        },
+        onLeaveBack: () => setDocked(false),
+      })
+    })
+    return () => ctx.revert()
+  }, [])
+
   return (
     <div
       ref={rootRef}
-      // Fixed: the pill always floats 7vh above the viewport bottom, never
-      // anchoring into page flow. Spans the viewport width and centers the pill
-      // via flex (left-0/right-0 give it the full width to center within).
-      className="pointer-events-none fixed inset-x-0 bottom-[7vh] z-[60] flex justify-center max-md:bottom-[5vh]"
+      // Floating: the pill sits 7vh above the viewport bottom via `fixed`. Once
+      // it reaches the dock line it switches to `absolute` at its snapshotted
+      // document position (dockTopRef), entering page flow so it scrolls away.
+      className={`pointer-events-none inset-x-0 z-[60] flex justify-center ${docked ? 'absolute' : 'fixed bottom-[7vh] max-md:bottom-[5vh]'
+        }`}
+      style={docked ? { top: dockTopRef.current } : undefined}
     >
+      <div className="flex flex-col items-center gap-3">
       <div
         className={`pointer-events-auto relative overflow-hidden rounded-[26px] [transform:translateZ(0)] transition-[width,background-color,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.34,1.4,0.5,1)] ${expanded
           ? 'w-[min(496px,92vw)] border border-accent/45 bg-[#101a2e]/70 shadow-[0_18px_60px_-12px_var(--color-shadow),0_0_40px_-12px_var(--color-glow)] backdrop-blur-xl'
@@ -79,24 +118,29 @@ export default function WaitlistCTA() {
             in the same band while the container width animates. */}
         <div className="relative h-[60px]">
           <div
-            className={`absolute inset-0 flex items-center justify-center gap-2 transition-opacity duration-200 ${expanded ? 'pointer-events-none opacity-0' : 'opacity-100'
+            className={`absolute inset-0 flex flex-col items-center justify-center gap-0.5 transition-opacity duration-200 ${expanded ? 'pointer-events-none opacity-0' : 'opacity-100'
               }`}
           >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="var(--color-on-accent)"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" />
-            </svg>
-            <span className="font-body text-[16px] font-semibold text-on-accent">
-              join the waitlist
+            <div className="flex items-center gap-2">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--color-on-accent)"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" />
+              </svg>
+              <span className="font-body text-[16px] font-semibold text-on-accent">
+                join the waitlist
+              </span>
+            </div>
+            <span className="font-body text-[11.5px] font-medium tracking-[0.2px] text-on-accent/65">
+              Enjoy exclusive benefits at launch
             </span>
           </div>
 
@@ -153,6 +197,16 @@ export default function WaitlistCTA() {
             </div>
           </div>
         </div>
+      </div>
+
+        {/* Social proof — part of the CTA block, so it docks and scrolls with
+            the pill rather than floating independently. */}
+        <p className="font-body text-[14px] text-fg-muted">
+          <span className="font-semibold text-accent-bright">
+            {WAITLIST_COUNT.toLocaleString('en-US')}
+          </span>{' '}
+          already on the list
+        </p>
       </div>
     </div>
   )

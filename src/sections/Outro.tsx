@@ -39,6 +39,11 @@ export default function Outro() {
     >
       <div className="dotmesh absolute top-0 left-0 h-[57vh] w-[43vw] opacity-18" />
 
+      {/* Dock line for the floating waitlist CTA — the pill parks here (just
+          below the heading) and then scrolls away with the page. Zero-size,
+          non-visual; only marks a scroll position. Tune top-[..] to taste. */}
+      <div className="cta-dock pointer-events-none absolute inset-x-0 bottom-[40vh]" aria-hidden="true" />
+
       {/* Giant fading wordmark behind everything */}
       {/* flex-centered so the gsap y-tween never bakes the x-centering
           into a stale pixel transform */}
