@@ -7,6 +7,8 @@ import Showcase from './sections/Showcase'
 import Outro from './sections/Outro'
 import WaitlistCTA from './components/WaitlistCTA'
 import ShareModalCard from './components/ShareModalCard'
+import { useWaitlist } from './lib/useWaitlist'
+import type { Preference } from './lib/waitlist'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -40,31 +42,34 @@ export default function App() {
     setMuted(next)
   }
 
-  // DEBUG: show the Share Modal Card by visiting the site with `#share` in the
-  // URL (e.g. localhost:5173/#share). Close, backdrop click, or Esc dismiss it.
-  // Not wired to any real CTA yet — remove this block when integrating.
-  const [showShare, setShowShare] = useState(
-    () => typeof window !== 'undefined' && window.location.hash === '#share',
-  )
+  // Waitlist state shared by the CTA (form / "you are #N" pill) and the share
+  // modal so both agree on uid, position and the live count.
+  const { uid, status, count, join } = useWaitlist()
+
+  // The share card stands in for the CTA while open. It opens automatically the
+  // moment a join succeeds, and on demand when an already-joined visitor taps
+  // their "you are #N" pill. It never auto-opens on load.
+  const [shareOpen, setShareOpen] = useState(false)
+
+  async function handleJoin(email: string, preference: Preference) {
+    const res = await join(email, preference)
+    setShareOpen(true)
+    return res
+  }
+
+  function closeShare() {
+    setShareOpen(false)
+  }
+
+  // Esc dismisses the share card (backdrop click is handled on the scrim).
   useEffect(() => {
-    const sync = () => setShowShare(window.location.hash === '#share')
-    window.addEventListener('hashchange', sync)
-    return () => window.removeEventListener('hashchange', sync)
-  }, [])
-  useEffect(() => {
-    if (!showShare) return
+    if (!shareOpen) return
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeShare()
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [showShare])
-  function closeShare() {
-    setShowShare(false)
-    if (window.location.hash === '#share') {
-      history.replaceState(null, '', window.location.pathname + window.location.search)
-    }
-  }
+  }, [shareOpen])
 
   return (
     <main className="relative">
@@ -74,9 +79,16 @@ export default function App() {
       <Outro />
       {/* The share card stands in for the CTA while open, so hide the floating
           pill. It returns when the card is dismissed. */}
-      {!showShare && <WaitlistCTA />}
+      {!shareOpen && (
+        <WaitlistCTA
+          status={status}
+          count={count}
+          onSubmit={handleJoin}
+          onOpenShare={() => setShareOpen(true)}
+        />
+      )}
 
-      {showShare && (
+      {shareOpen && status?.joined && (
         // Transparent (un-dimmed) scrim — the card floats over the live scene,
         // but the full-screen layer still catches clicks so clicking anywhere
         // outside the card dismisses it (and brings the CTA pill back). Esc
@@ -89,7 +101,11 @@ export default function App() {
             className="origin-bottom scale-[0.8]"
             onClick={(e) => e.stopPropagation()}
           >
-            <ShareModalCard />
+            <ShareModalCard
+              index={status.index}
+              referralId={uid}
+              origin={window.location.host}
+            />
           </div>
         </div>
       )}

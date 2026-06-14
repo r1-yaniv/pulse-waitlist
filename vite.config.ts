@@ -3,8 +3,11 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  // Served from https://r1-yaniv.github.io/pulse-waitlist/ on GitHub Pages, so
-  // assets must resolve under the repo subpath. Use '/' for a custom domain.
-  base: '/pulse-waitlist/',
+  // Served at the root on Railway (single container serves dist/ + the API).
+  base: '/',
   plugins: [react(), tailwindcss()],
+  server: {
+    // Dev: forward API calls to the local Express server (see `npm run dev:api`).
+    proxy: { '/api': 'http://localhost:8080' },
+  },
 })

@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: pulse
+      POSTGRES_PASSWORD: pulse
+      POSTGRES_DB: waitlist
+    # Host port 5433 (5432 is commonly taken by another local Postgres, e.g. the
+    # Pulse monorepo). The web container still reaches it at db:5432 internally.
+    ports: ["5433:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pulse -d waitlist"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  web:
+    build: .
+    environment:
+      DATABASE_URL: postgres://pulse:pulse@db:5432/waitlist
+      PORT: 8080
+      COUNT_REFRESH_MS: ${COUNT_REFRESH_MS:-60000}
+    ports: ["8080:8080"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata: {}
