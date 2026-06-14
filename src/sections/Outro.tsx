@@ -1,6 +1,5 @@
 import { useLayoutEffect, useRef } from 'react'
 import gsap from 'gsap'
-import Wordmark from '../components/Wordmark'
 import PulseLine from '../components/PulseLine'
 
 export default function Outro() {
@@ -39,7 +38,6 @@ export default function Outro() {
       className="relative flex min-h-screen flex-col items-center overflow-hidden bg-bg-deep pt-[23vh]"
     >
       <div className="dotmesh absolute top-0 left-0 h-[57vh] w-[43vw] opacity-18" />
-      <Wordmark className="absolute top-10 left-12 opacity-85 max-md:left-6" />
 
       {/* Giant fading wordmark behind everything */}
       {/* flex-centered so the gsap y-tween never bakes the x-centering
@@ -60,7 +58,7 @@ export default function Outro() {
             WebkitBackgroundClip: 'text',
           }}
         >
-          Pulse
+          pulse
         </span>
       </div>
 
