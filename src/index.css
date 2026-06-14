@@ -9,15 +9,15 @@
 
   /* Text */
   --color-fg: #f2f7f5;
-  --color-fg-muted: #adbdb8;
-  --color-fg-dim: #5a6a66;
+  --color-fg-muted: #aab4c6;
+  --color-fg-dim: #5b6580;
 
-  /* Accent */
-  --color-accent: #34d399;
-  --color-accent-bright: #86f5c0;
-  --color-accent-soft: #34d39926;
-  --color-on-accent: #06140f;
-  --color-glow: #34d39940;
+  /* Accent — blue, matching the product's new primary (d-accent #579DFF) */
+  --color-accent: #579dff;
+  --color-accent-bright: #85b8ff;
+  --color-accent-soft: #579dff26;
+  --color-on-accent: #07101c;
+  --color-glow: #579dff40;
 
   /* Glass */
   --color-glass: #ffffff14;
@@ -26,9 +26,9 @@
   --color-glass-border-soft: #ffffff12;
 
   /* Ambience */
-  --color-blob-a: #5fe6b0;
+  --color-blob-a: #6e8bff;
   --color-blob-b: #3b3a8a;
-  --color-dot: #73d6ac;
+  --color-dot: #6e8bff;
   --color-shadow: #00000080;
 
   --font-display: "Russo One", sans-serif;

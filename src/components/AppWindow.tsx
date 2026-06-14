@@ -5,11 +5,13 @@ type Props = {
   alt: string
   className?: string
   imgClassName?: string
+  /** When set, an autoplaying loop video fills the window instead of an image. */
+  video?: boolean
 }
 
 /** Browser-chrome frame around a product screenshot (c/AppWindow in the mockup). */
 const AppWindow = forwardRef<HTMLDivElement, Props>(function AppWindow(
-  { src, alt, className = '', imgClassName = '' },
+  { src, alt, className = '', imgClassName = '', video = false },
   ref,
 ) {
   return (
@@ -41,11 +43,24 @@ const AppWindow = forwardRef<HTMLDivElement, Props>(function AppWindow(
         </div>
         <div className="flex-1" />
       </div>
-      <img
-        src={src}
-        alt={alt}
-        className={`block w-full object-cover object-top ${imgClassName}`}
-      />
+      {video ? (
+        <video
+          src={src}
+          aria-label={alt}
+          className={`block w-full object-cover object-top ${imgClassName}`}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+        />
+      ) : (
+        <img
+          src={src}
+          alt={alt}
+          className={`block w-full object-cover object-top ${imgClassName}`}
+        />
+      )}
     </div>
   )
 })

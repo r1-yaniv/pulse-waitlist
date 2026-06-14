@@ -10,6 +10,8 @@ export type ShowcaseProps = {
   bullets: readonly string[]
   image: string
   imageAlt: string
+  /** Embed the media as an autoplaying loop video instead of a static image. */
+  video?: boolean
   /** Which side the app window sits on. Sides alternate between showcases. */
   windowSide: 'left' | 'right'
   /** Renders the dunes separator over the bottom edge (last showcase). */
@@ -46,6 +48,7 @@ export default function Showcase({
   bullets,
   image,
   imageAlt,
+  video = false,
   windowSide,
   withDunes = false,
 }: ShowcaseProps) {
@@ -64,7 +67,8 @@ export default function Showcase({
         scrollTrigger: { trigger: section, start: 'top 62%' },
       })
       // The tall screenshot pans slowly inside its window as we scroll by.
-      gsap.fromTo(
+      // A video carries its own motion, so it's left alone.
+      if (!video) gsap.fromTo(
         '.sc-shot img',
         { y: 0 },
         {
@@ -102,7 +106,7 @@ export default function Showcase({
       }
     }, section)
     return () => ctx.revert()
-  }, [withDunes])
+  }, [withDunes, video])
 
   const windowLeft = windowSide === 'left'
 
@@ -143,6 +147,7 @@ export default function Showcase({
           <AppWindow
             src={image}
             alt={imageAlt}
+            video={video}
             className={`sc-shot h-auto w-[min(57vw,1080px)] max-lg:w-full lg:translate-y-[12vh] ${
               windowLeft ? 'float-right' : ''
             }`}
