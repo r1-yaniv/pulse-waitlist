@@ -39,6 +39,11 @@ export default function Outro() {
     >
       <div className="dotmesh absolute top-0 left-0 h-[57vh] w-[43vw] opacity-18" />
 
+      {/* Dock line for the floating waitlist CTA — the pill parks here (just
+          below the heading) and then scrolls away with the page. Zero-size,
+          non-visual; only marks a scroll position. Tune top-[..] to taste. */}
+      <div className="cta-dock pointer-events-none absolute inset-x-0 bottom-[40vh]" aria-hidden="true" />
+
       {/* Giant fading wordmark behind everything */}
       {/* flex-centered so the gsap y-tween never bakes the x-centering
           into a stale pixel transform */}
@@ -58,7 +63,7 @@ export default function Outro() {
             WebkitBackgroundClip: 'text',
           }}
         >
-          pulse
+          Pulse
         </span>
       </div>
 
@@ -75,7 +80,6 @@ export default function Outro() {
           from the noise.
         </h2>
       </div>
-
       <p className="absolute right-10 bottom-7 text-[11px] tracking-[1.5px] text-fg-dim max-md:right-1/2 max-md:translate-x-1/2">
         © 2026 · PULSE · BY ROOMONE
       </p>
