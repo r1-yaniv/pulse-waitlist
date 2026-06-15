@@ -12,6 +12,8 @@ export type ShowcaseProps = {
   imageAlt: string
   /** Embed the media as an autoplaying loop video instead of a static image. */
   video?: boolean
+  /** Poster still for the video — also what session replay captures in its place. */
+  poster?: string
   /** Which side the app window sits on. Sides alternate between showcases. */
   windowSide: 'left' | 'right'
   /** Renders the dunes separator over the bottom edge (last showcase). */
@@ -49,6 +51,7 @@ export default function Showcase({
   image,
   imageAlt,
   video = false,
+  poster,
   windowSide,
   withDunes = false,
 }: ShowcaseProps) {
@@ -148,6 +151,7 @@ export default function Showcase({
             src={image}
             alt={imageAlt}
             video={video}
+            poster={poster}
             className={`sc-shot h-auto w-[min(57vw,1080px)] max-lg:w-full lg:translate-y-[12vh] ${
               windowLeft ? 'float-right' : ''
             }`}

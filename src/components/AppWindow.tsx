@@ -7,11 +7,16 @@ type Props = {
   imgClassName?: string
   /** When set, an autoplaying loop video fills the window instead of an image. */
   video?: boolean
+  /**
+   * Still shown before the video plays. Also what session-replay tools
+   * (OpenReplay) capture in place of the video, which they can't record.
+   */
+  poster?: string
 }
 
 /** Browser-chrome frame around a product screenshot (c/AppWindow in the mockup). */
 const AppWindow = forwardRef<HTMLDivElement, Props>(function AppWindow(
-  { src, alt, className = '', imgClassName = '', video = false },
+  { src, alt, className = '', imgClassName = '', video = false, poster },
   ref,
 ) {
   return (
@@ -46,6 +51,7 @@ const AppWindow = forwardRef<HTMLDivElement, Props>(function AppWindow(
       {video ? (
         <video
           src={src}
+          poster={poster}
           aria-label={alt}
           className={`block w-full object-cover object-top ${imgClassName}`}
           autoPlay

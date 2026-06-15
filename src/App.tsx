@@ -24,6 +24,7 @@ const DISCOVERY = {
   image: `${import.meta.env.BASE_URL}notif-reveal.mp4`,
   imageAlt: 'Pulse surfacing a live signal notification tied to your positions',
   video: true,
+  poster: `${import.meta.env.BASE_URL}notif-reveal-poster.webp`,
   windowSide: 'right',
   withDunes: false,
 } as const

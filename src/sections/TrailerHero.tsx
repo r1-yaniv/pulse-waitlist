@@ -35,6 +35,10 @@ export default function TrailerHero({ videoRef }: Props) {
           ref={videoRef}
           className="trailer-feather block aspect-video w-full"
           src={`${import.meta.env.BASE_URL}pulse-trailer.mp4`}
+          // Session-replay tools (OpenReplay) can't capture <video> frames, so
+          // they replay as black. The poster is part of the captured DOM, so it
+          // stands in for the trailer in recordings.
+          poster={`${import.meta.env.BASE_URL}trailer-poster.webp`}
           autoPlay
           muted
           loop
