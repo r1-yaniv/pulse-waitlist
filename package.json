@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@openreplay/tracker": "^17.2.11",
     "express": "^4.21.2",
     "gsap": "^3.12.7",
     "pg": "^8.13.1",
