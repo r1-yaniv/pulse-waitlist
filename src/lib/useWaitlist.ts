@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { captureRef, getOrCreateUid, getStoredRef, setUid } from './identity'
+import { identifyWaitlist } from './openreplay'
 import * as api from './waitlist'
 import type { JoinResp, Preference, StatusResp } from './waitlist'
 
@@ -30,6 +31,8 @@ export function useWaitlist(): Waitlist {
     uidRef.current = id
     setUidState(id)
     captureRef()
+    // Tag the OpenReplay session with the visitor uid + referrer (no-op in dev).
+    identifyWaitlist({ uid: id, referrer: getStoredRef() ?? undefined })
 
     let cancelled = false
     const refreshCount = () =>
@@ -40,7 +43,11 @@ export function useWaitlist(): Waitlist {
 
     api
       .getStatus(id)
-      .then((s) => { if (!cancelled) setStatus(s) })
+      .then((s) => {
+        if (cancelled) return
+        setStatus(s)
+        if (s.joined) identifyWaitlist({ index: s.index, preference: s.preference })
+      })
       .catch(() => { if (!cancelled) setStatus({ joined: false }) })
 
     refreshCount()
@@ -90,6 +97,14 @@ export function useWaitlist(): Waitlist {
       setStatus({ joined: true, index: res.index, preference: res.preference })
       // A brand-new row grows the count; a merge doesn't.
       if (!res.merged) setCount((c) => (c == null ? c : c + 1))
+      // Enrich the OpenReplay session with the now-known waitlist context
+      // (uid may have changed via an email-merge).
+      identifyWaitlist({
+        uid: uidRef.current,
+        index: res.index,
+        preference: res.preference,
+        referrer: getStoredRef() ?? undefined,
+      })
       return res
     },
     [],
