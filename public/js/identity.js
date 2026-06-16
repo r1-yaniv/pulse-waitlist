@@ -12,9 +12,9 @@ const REF_KEY = 'pulse.wl.ref'
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 const UID_RE = /^[A-Za-z0-9]{8}$/
 
-let memoryUid: string | null = null
+let memoryUid = null
 
-function safeGet(key: string): string | null {
+function safeGet(key) {
   try {
     return localStorage.getItem(key)
   } catch {
@@ -22,7 +22,7 @@ function safeGet(key: string): string | null {
   }
 }
 
-function safeSet(key: string, value: string): void {
+function safeSet(key, value) {
   try {
     localStorage.setItem(key, value)
   } catch {
@@ -31,7 +31,7 @@ function safeSet(key: string, value: string): void {
 }
 
 /** 8-char alphanumeric id from a uniform random source. */
-function randomUid(): string {
+function randomUid() {
   const bytes = new Uint8Array(8)
   crypto.getRandomValues(bytes)
   let s = ''
@@ -40,7 +40,7 @@ function randomUid(): string {
 }
 
 /** Read the persisted uid, creating and storing one on first visit. */
-export function getOrCreateUid(): string {
+export function getOrCreateUid() {
   const stored = safeGet(UID_KEY)
   if (stored && UID_RE.test(stored)) return stored
 
@@ -51,7 +51,7 @@ export function getOrCreateUid(): string {
 }
 
 /** Overwrite the stored uid — used after an email-merge adopts the original. */
-export function setUid(uid: string): void {
+export function setUid(uid) {
   memoryUid = uid
   safeSet(UID_KEY, uid)
 }
@@ -61,7 +61,7 @@ export function setUid(uid: string): void {
  * first time only, so the original referrer keeps the credit on later visits.
  * Returns the stored referrer (if any).
  */
-export function captureRef(): string | null {
+export function captureRef() {
   const fromUrl = new URLSearchParams(window.location.search).get('ref')
   if (fromUrl && UID_RE.test(fromUrl) && !safeGet(REF_KEY)) {
     safeSet(REF_KEY, fromUrl)
@@ -69,6 +69,6 @@ export function captureRef(): string | null {
   return getStoredRef()
 }
 
-export function getStoredRef(): string | null {
+export function getStoredRef() {
   return safeGet(REF_KEY)
 }

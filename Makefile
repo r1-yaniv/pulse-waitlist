@@ -33,7 +33,7 @@ psql:   ## interactive psql shell
 count:  ## quick API smoke check
 	curl -s localhost:8080/api/count
 
-dev:    ## host-mode hot reload (db in docker, vite+api on host)
+dev:    ## host-mode reload (db in docker, static+api on host at :8080)
 	$(MAKE) db-up && npm run dev
 
 .PHONY: help up down clean db-up seed reset logs psql count dev

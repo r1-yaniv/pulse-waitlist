@@ -5,7 +5,8 @@ import express from 'express'
 import pg from 'pg'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const DIST_DIR = join(__dirname, '..', 'dist')
+// The frontend is plain static files (no build step) served from `public/`.
+const PUBLIC_DIR = join(__dirname, '..', 'public')
 
 const PORT = Number(process.env.PORT) || 8080
 const COUNT_REFRESH_MS = Number.parseInt(process.env.COUNT_REFRESH_MS, 10) || 60_000
@@ -114,10 +115,10 @@ app.post('/api/join', async (req, res, next) => {
   return res.status(500).json({ error: 'could not allocate a unique id, please retry' })
 })
 
-// Static frontend + SPA fallback (everything that isn't /api/*).
-app.use(express.static(DIST_DIR))
+// Static frontend + fallback (everything that isn't /api/*).
+app.use(express.static(PUBLIC_DIR))
 app.get(/^(?!\/api\/).*/, (_req, res) => {
-  res.sendFile(join(DIST_DIR, 'index.html'))
+  res.sendFile(join(PUBLIC_DIR, 'index.html'))
 })
 
 // eslint-disable-next-line no-unused-vars -- Express needs the 4-arg signature.
