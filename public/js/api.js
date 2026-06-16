@@ -24,3 +24,7 @@ export const getStatus = (uid) =>
 /** body: { uid, email, preference, ref } */
 export const join = (body) =>
   req('/join', { method: 'POST', body: JSON.stringify(body) })
+
+/** body: { uid, preference } — updates an existing row's mailing preference. */
+export const setPreference = (body) =>
+  req('/preference', { method: 'POST', body: JSON.stringify(body) })

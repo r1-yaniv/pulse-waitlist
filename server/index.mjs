@@ -65,6 +65,28 @@ app.get('/api/status', async (req, res, next) => {
   }
 })
 
+app.post('/api/preference', async (req, res, next) => {
+  const body = req.body ?? {}
+  const uid = String(body.uid ?? '')
+  if (!UID_RE.test(uid)) return res.status(400).json({ error: 'invalid uid' })
+
+  const preference = body.preference
+  if (preference !== 'updates' && preference !== 'launch') {
+    return res.status(400).json({ error: 'invalid preference' })
+  }
+
+  try {
+    const { rows } = await pool.query(
+      'UPDATE waitlist SET preference = $2 WHERE uid = $1 RETURNING preference',
+      [uid, preference],
+    )
+    if (rows.length === 0) return res.status(404).json({ error: 'not on the waitlist' })
+    res.json({ preference: rows[0].preference })
+  } catch (err) {
+    next(err)
+  }
+})
+
 app.post('/api/join', async (req, res, next) => {
   const body = req.body ?? {}
   const uid = String(body.uid ?? '')
@@ -81,12 +103,14 @@ app.post('/api/join', async (req, res, next) => {
   const rawRef = String(body.ref ?? '')
   const ref = UID_RE.test(rawRef) && rawRef !== uid ? rawRef : null
 
-  // INSERT ... ON CONFLICT (email) returns the existing row on a repeat email
-  // (first registration wins); (xmax = 0) discriminates fresh insert vs conflict.
+  // INSERT ... ON CONFLICT (email) returns the existing row on a repeat email.
+  // Position and uid stay first-write-wins (DO UPDATE keeps the original idx/uid),
+  // but a re-submit refreshes the mailing preference. (xmax = 0) discriminates
+  // fresh insert vs conflict.
   const sql = `
     INSERT INTO waitlist (uid, email, referrer_uid, preference)
     VALUES ($1, $2, $3, $4)
-    ON CONFLICT (email) DO UPDATE SET email = waitlist.email
+    ON CONFLICT (email) DO UPDATE SET preference = EXCLUDED.preference
     RETURNING idx, uid, preference, (xmax = 0) AS inserted
   `
 

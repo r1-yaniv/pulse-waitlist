@@ -46,6 +46,8 @@ export function initWaitlist() {
     shareCopyLabel: document.getElementById('share-copy-label'),
     iconCopy: document.querySelector('.share-copy .icon-copy'),
     iconCheck: document.querySelector('.share-copy .icon-check'),
+    prefChoices: Array.from(document.querySelectorAll('.share-pref-choice')),
+    prefStatus: document.getElementById('share-pref-status'),
   }
 
   bootstrap()
@@ -154,6 +156,7 @@ function wireCta() {
         b.classList.toggle('is-selected', on)
         b.setAttribute('aria-pressed', String(on))
       })
+      if (el.error.textContent) showError('')
     })
   })
 
@@ -168,10 +171,14 @@ function wireCta() {
       showError('Enter a valid email')
       return
     }
+    if (!state.choice) {
+      showError('Pick one option above so we know how to reach you')
+      return
+    }
     setSubmitting(true)
     showError('')
     try {
-      await join(email, state.choice ?? 'launch')
+      await join(email, state.choice)
       collapse()
       openShare()
     } catch (err) {
@@ -266,6 +273,52 @@ function wireShare() {
     if (e.key === 'Escape' && state.shareOpen) closeShare()
   })
   el.shareCopy.addEventListener('click', copyLink)
+  el.prefChoices.forEach((btn) => {
+    btn.addEventListener('click', () => changePreference(btn.dataset.pref))
+  })
+}
+
+function renderPref() {
+  const current = state.status && state.status.preference
+  el.prefChoices.forEach((b) => {
+    const on = b.dataset.pref === current
+    b.classList.toggle('is-selected', on)
+    b.setAttribute('aria-pressed', String(on))
+  })
+}
+
+function setPrefStatus(msg, isError) {
+  el.prefStatus.textContent = msg
+  el.prefStatus.classList.toggle('is-shown', Boolean(msg))
+  el.prefStatus.classList.toggle('is-error', Boolean(isError))
+}
+
+let prefStatusTimer
+async function changePreference(pref) {
+  if (!(state.status && state.status.joined)) return
+  if (state.status.preference === pref) return
+
+  const prev = state.status.preference
+  state.status.preference = pref // optimistic
+  renderPref()
+  el.prefChoices.forEach((b) => (b.disabled = true))
+  if (prefStatusTimer) clearTimeout(prefStatusTimer)
+  setPrefStatus('Saving…', false)
+
+  try {
+    const res = await api.setPreference({ uid: state.uid, preference: pref })
+    state.status.preference = res.preference
+    renderPref()
+    identifyWaitlist({ uid: state.uid, preference: res.preference })
+    setPrefStatus('Saved', false)
+    prefStatusTimer = window.setTimeout(() => setPrefStatus('', false), 1800)
+  } catch (err) {
+    state.status.preference = prev // roll back
+    renderPref()
+    setPrefStatus(err instanceof Error ? err.message : 'Could not save', true)
+  } finally {
+    el.prefChoices.forEach((b) => (b.disabled = false))
+  }
 }
 
 function openShare() {
@@ -278,6 +331,8 @@ function openShare() {
   el.shareLink.textContent = displayLink
   el.shareCopy.dataset.url = `https://${displayLink}`
   resetCopy()
+  renderPref()
+  setPrefStatus('', false)
 
   el.overlay.hidden = false
   // The card stands in for the CTA while open.
