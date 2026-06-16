@@ -58,9 +58,12 @@
 /* The UA `[hidden] { display: none }` rule only reliably applies to HTML
    elements, not inline SVG, so JS toggles like `icon.hidden = true` leave the
    SVG visible — which made every toggle button (mute, copy, CTA) show both
-   icon variants at once. Force it for all elements. */
+   icon variants at once. Re-declaring it as an author rule fixes the SVGs
+   (it outranks the UA svg display). No `!important`: some elements keep a
+   permanent `hidden` attribute and are revealed by higher-specificity rules
+   (e.g. `.cta-pill.is-joined .cta-joined`), which must still win. */
 [hidden] {
-  display: none !important;
+  display: none;
 }
 
 html {
