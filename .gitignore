@@ -1,9 +1,8 @@
 node_modules
-dist
 server/data
 .DS_Store
 *.local
 .env
 
-# build cache
-tsconfig.tsbuildinfo
+# large source-of-truth video backups (not shipped)
+_video_originals

@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pulse — All your positions. All their signals. One pulse.</title>
+  <meta name="description"
+    content="Pulse unifies your prediction-market portfolio across every venue and tells you why it moves — the moment it does. Join the waitlist." />
+  <meta property="og:title" content="Pulse — Get signals from the noise." />
+  <meta property="og:description"
+    content="Trading intelligence for prediction markets. Your positions, your P&L, and the news that moves them — across every venue, in one place." />
+  <meta property="og:type" content="website" />
+  <link rel="icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%2386F5C0'/%3E%3Cpath d='M5 16h6l2-5 4 10 2-5h8' fill='none' stroke='%2306140F' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Chakra+Petch:wght@400;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <script type="module" src="/js/main.js"></script>
+</head>
+
+<body>
+  <main>
+    <!-- ===================== Top bar ===================== -->
+    <header class="topbar">
+      <a class="wordmark" href="/" aria-label="Pulse home">
+        <span class="wordmark-mark">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-on-accent)" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path
+              d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" />
+          </svg>
+        </span>
+        <span class="wordmark-text">pulse</span>
+      </a>
+
+      <button type="button" class="mute-btn" id="mute-btn" aria-label="Unmute trailer" aria-pressed="false">
+        <svg class="icon-muted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M11 4.7a.7.7 0 0 0-1.2-.5L6 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h3l3.8 3.8a.7.7 0 0 0 1.2-.5z" />
+          <line x1="22" y1="9" x2="16" y2="15" />
+          <line x1="16" y1="9" x2="22" y2="15" />
+        </svg>
+        <svg class="icon-unmuted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+          <path d="M11 4.7a.7.7 0 0 0-1.2-.5L6 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h3l3.8 3.8a.7.7 0 0 0 1.2-.5z" />
+          <path d="M16 9a5 5 0 0 1 0 6" />
+          <path d="M19.5 6.5a9 9 0 0 1 0 11" />
+        </svg>
+      </button>
+    </header>
+
+    <!-- ===================== Trailer hero ===================== -->
+    <section class="hero">
+      <div class="hero-black"></div>
+      <div class="hero-glow"></div>
+      <div class="hero-fade"></div>
+      <div class="hero-video-wrap">
+        <video id="trailer" class="trailer-feather hero-video" src="/pulse-trailer.mp4" poster="/trailer-poster.webp"
+          autoplay muted loop playsinline preload="auto"></video>
+      </div>
+      <div class="hero-scroll-cue">SCROLL</div>
+    </section>
+
+    <!-- ===================== Showcase: Discovery ===================== -->
+    <section class="showcase">
+      <div class="showcase-glow"></div>
+      <div class="showcase-inner">
+        <div class="sc-text fx-reveal">
+          <div class="chip">
+            <span class="chip-dot"></span>
+            <span class="chip-label">03 — DISCOVERY</span>
+          </div>
+          <h2 class="sc-heading">Your next position, found.</h2>
+          <p class="sc-body">
+            Browse every market across venues, search in plain English, and stack
+            filters until the odds line up. The next trade is already out there —
+            Pulse points at it.
+          </p>
+          <ul class="sc-bullets">
+            <li class="sc-bullet">
+              <span class="sc-check">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)"
+                  stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+              </span>
+              <span class="sc-bullet-label">Search markets in plain English</span>
+            </li>
+            <li class="sc-bullet">
+              <span class="sc-check">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)"
+                  stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+              </span>
+              <span class="sc-bullet-label">Filter and compare across venues</span>
+            </li>
+            <li class="sc-bullet">
+              <span class="sc-check">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)"
+                  stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+              </span>
+              <span class="sc-bullet-label">Spot the odds before the crowd</span>
+            </li>
+          </ul>
+        </div>
+        <div class="showcase-window-col">
+          <div class="app-window sc-shot">
+            <div class="app-window-bar">
+              <span class="app-window-dot"></span>
+              <span class="app-window-dot"></span>
+              <span class="app-window-dot"></span>
+              <div class="app-window-spacer"></div>
+              <div class="app-window-url">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--color-fg-dim)"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                <span>pulse.trade</span>
+              </div>
+              <div class="app-window-spacer"></div>
+            </div>
+            <video class="app-window-media" src="/notif-reveal.mp4" poster="/notif-reveal-poster.webp"
+              aria-label="Pulse surfacing a live signal notification tied to your positions" autoplay muted loop
+              playsinline preload="auto"></video>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== Outro ===================== -->
+    <section class="outro" id="outro">
+      <div class="dotmesh outro-dotmesh"></div>
+
+      <!-- Giant fading wordmark behind everything -->
+      <div class="outro-wordmark" id="outro-wordmark" aria-hidden="true">
+        <span class="outro-wordmark-text">Pulse</span>
+      </div>
+
+      <!-- EKG pulse line crossing the wordmark -->
+      <div class="outro-pulse">
+        <div class="pulse-glow outro-pulse-glow"></div>
+        <svg class="pulse-line" id="pulse-line" viewBox="0 0 900 300" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="pulse-stroke" x1="0" y1="0" x2="900" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="var(--color-accent-soft)" />
+              <stop offset="0.25" stop-color="var(--color-accent-bright)" />
+              <stop offset="0.75" stop-color="var(--color-accent-bright)" />
+              <stop offset="1" stop-color="var(--color-accent-soft)" />
+            </linearGradient>
+            <filter id="pulse-blur" x="-10%" y="-50%" width="120%" height="200%">
+              <feGaussianBlur stdDeviation="9" />
+            </filter>
+          </defs>
+          <path d="M0 150l320 0 30-14 30 14 50 0 32-102 32 194 32-92 54 0 40-26 40 26 240 0"
+            stroke="var(--color-accent)" stroke-width="7" stroke-linejoin="round" stroke-linecap="round" opacity="0.5"
+            filter="url(#pulse-blur)" class="pulse-glow" />
+          <path d="M0 150l320 0 30-14 30 14 50 0 32-102 32 194 32-92 54 0 40-26 40 26 240 0" stroke="url(#pulse-stroke)"
+            stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+        </svg>
+      </div>
+
+      <div class="outro-stack fx-reveal" id="outro-stack">
+        <h2 class="outro-heading">Get signals<br />from the noise.</h2>
+      </div>
+
+      <!-- Dock line for the floating waitlist CTA. -->
+      <div class="cta-dock" id="cta-dock" aria-hidden="true"></div>
+
+      <p class="outro-footer">© 2026 · PULSE · BY ROOMONE</p>
+    </section>
+  </main>
+
+  <!-- ===================== Floating waitlist CTA ===================== -->
+  <div class="cta-root" id="cta-root">
+    <div class="cta-stack">
+      <div class="cta-pill" id="cta-pill" role="button" tabindex="0" aria-label="Join the waitlist">
+        <!-- Morphing top region -->
+        <div class="cta-top">
+          <!-- Joined: "you are #N" -->
+          <div class="cta-joined" id="cta-joined" hidden>
+            <span class="cta-joined-num">you are #<span id="cta-joined-index">0</span></span>
+            <span class="cta-joined-sub">You're on the list — tap to share</span>
+          </div>
+
+          <!-- Collapsed label -->
+          <div class="cta-label" id="cta-label">
+            <div class="cta-label-row">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-on-accent)"
+                stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path
+                  d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" />
+              </svg>
+              <span class="cta-label-main">join the waitlist</span>
+            </div>
+            <span class="cta-label-sub">Enjoy exclusive benefits at launch</span>
+          </div>
+
+          <!-- Expanded email bar -->
+          <form class="cta-form" id="cta-form" novalidate>
+            <input id="cta-email" class="cta-input" type="email" placeholder="Enter your email to join the waitlist" />
+            <button type="submit" class="cta-submit" id="cta-submit" aria-label="Join">
+              <svg class="cta-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14" />
+                <path d="m13 6 6 6-6 6" />
+              </svg>
+              <svg class="cta-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.4" stroke-linecap="round" aria-hidden="true" hidden>
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+              </svg>
+            </button>
+          </form>
+        </div>
+
+        <!-- Action footer -->
+        <div class="cta-footer" id="cta-footer">
+          <div class="cta-footer-clip">
+            <div class="cta-footer-row">
+              <span class="cta-error" id="cta-error" role="alert"></span>
+              <div class="cta-choices">
+                <button type="button" class="cta-choice" data-choice="updates" aria-pressed="false">send me
+                  updates</button>
+                <button type="button" class="cta-choice" data-choice="launch" aria-pressed="false">launch message
+                  only</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Social proof -->
+      <p class="cta-count" id="cta-count" hidden></p>
+    </div>
+  </div>
+
+  <!-- ===================== Share modal ===================== -->
+  <div class="share-overlay" id="share-overlay" hidden>
+    <div class="share-scale">
+      <div class="share-card">
+        <div class="share-hero">
+          <span class="share-eyebrow">YOU ARE</span>
+          <span class="share-number">#<span id="share-index">0</span></span>
+          <span class="share-sub">on the waitlist</span>
+        </div>
+        <div class="share-thanks">
+          <p>
+            Thanks for joining Pulse — you're officially in. As one of our founding
+            members, you'll unlock a set of exclusive perks when we launch.
+          </p>
+        </div>
+        <div class="share-divider-block">
+          <div class="share-divider"></div>
+          <h3 class="share-heading">Share your link for even more</h3>
+        </div>
+        <div class="share-row">
+          <div class="share-link-wrap">
+            <span class="share-link-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+              </svg>
+            </span>
+            <span class="share-link-text" id="share-link-text"></span>
+          </div>
+          <button type="button" class="share-copy" id="share-copy" aria-label="Copy referral link">
+            <span class="share-copy-icon">
+              <svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+              </svg>
+              <svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+            </span>
+            <span class="share-copy-label" id="share-copy-label">Copy</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
