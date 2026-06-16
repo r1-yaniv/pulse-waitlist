@@ -24,7 +24,7 @@ const AppWindow = forwardRef<HTMLDivElement, Props>(function AppWindow(
       ref={ref}
       className={`overflow-hidden rounded-2xl border border-glass-border bg-bg-deep shadow-[0_30px_70px_-10px_var(--color-shadow)] ${className}`}
     >
-      <div className="flex h-[42px] items-center gap-2 border-b border-glass-border-soft bg-glass-strong px-4 backdrop-blur-md">
+      <div className="flex h-[42px] items-center gap-2 border-b border-glass-border-soft bg-glass-strong px-4 md:backdrop-blur-md">
         <span className="h-2.5 w-2.5 rounded-full bg-glass-border" />
         <span className="h-2.5 w-2.5 rounded-full bg-glass-border" />
         <span className="h-2.5 w-2.5 rounded-full bg-glass-border" />

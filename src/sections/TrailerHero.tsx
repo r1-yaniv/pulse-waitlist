@@ -15,7 +15,7 @@ type Props = {
  */
 export default function TrailerHero({ videoRef }: Props) {
   return (
-    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-bg-deep">
+    <section className="relative flex min-h-[60svh] md:min-h-screen flex-col items-center justify-center overflow-hidden bg-bg-deep">
       {/* Pure black field the trailer melts into — it shares the video's own
           black background so the footage has no visible boundary. */}
       <div className="absolute inset-0 bg-black" />
@@ -26,7 +26,7 @@ export default function TrailerHero({ videoRef }: Props) {
       {/* One tall, eased fade carries the black field smoothly down into bg-deep
           so the hero dissolves into the showcase with no seam. The mid stops
           curve the ramp so there's no perceptible line where black meets blue. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[62vh] bg-[linear-gradient(to_bottom,transparent_0%,rgba(7,11,18,0.15)_30%,rgba(7,11,18,0.55)_60%,var(--color-bg-deep)_100%)]" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[40svh] md:h-[62vh] bg-[linear-gradient(to_bottom,transparent_0%,rgba(7,11,18,0.15)_30%,rgba(7,11,18,0.55)_60%,var(--color-bg-deep)_100%)]" />
 
       {/* The trailer. Feathered edges (see .trailer-feather) erase the hard
           rectangle so it integrates with the surrounding black field. */}

@@ -17,6 +17,9 @@ const C = {
   ink2: '#9FADBC',
   ink3: '#738496',
   panel: '#22272B',
+  // Translucent variant of `panel` — lets the live scene bleed through behind
+  // the card (paired with a backdrop blur) for a subtle glassy depth.
+  panelGlass: 'rgba(34, 39, 43, 0.78)',
   panel2: '#282E33',
   border: '#2C333A',
   divider: '#2C333A',
@@ -105,7 +108,9 @@ export default function ShareModalCard({
       className="flex w-[448px] max-w-[92vw] flex-col items-center border p-12 max-sm:p-7"
       style={{
         fontFamily: FONT,
-        background: C.panel,
+        background: C.panelGlass,
+        backdropFilter: 'blur(20px) saturate(1.3)',
+        WebkitBackdropFilter: 'blur(20px) saturate(1.3)',
         borderColor: C.border,
         borderRadius: C.rLg,
         boxShadow: `0 20px 50px -8px ${C.shadow}`,

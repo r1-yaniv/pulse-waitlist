@@ -8,6 +8,10 @@ export default function Outro() {
   useLayoutEffect(() => {
     const section = sectionRef.current
     if (!section) return
+    // On touch, scroll events are throttled during momentum, so a scrubbed rise
+    // trails the finger. Play it once on enter there; keep it scroll-tied on
+    // pointer devices.
+    const touch = window.matchMedia('(pointer: coarse)').matches
     const ctx = gsap.context(() => {
       gsap.from('.outro-stack > *', {
         opacity: 0,
@@ -20,13 +24,16 @@ export default function Outro() {
       // Giant wordmark surfaces from below as the outro arrives.
       gsap.from('.outro-wordmark', {
         y: 140,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: section,
-          start: 'top bottom',
-          end: 'bottom bottom',
-          scrub: true,
-        },
+        ease: touch ? 'power2.out' : 'none',
+        ...(touch ? { duration: 1 } : {}),
+        scrollTrigger: touch
+          ? { trigger: section, start: 'top 70%', once: true }
+          : {
+              trigger: section,
+              start: 'top bottom',
+              end: 'bottom bottom',
+              scrub: true,
+            },
       })
     }, section)
     return () => ctx.revert()
@@ -38,11 +45,6 @@ export default function Outro() {
       className="relative flex min-h-screen flex-col items-center overflow-hidden bg-bg-deep pt-[23vh]"
     >
       <div className="dotmesh absolute top-0 left-0 h-[57vh] w-[43vw] opacity-18" />
-
-      {/* Dock line for the floating waitlist CTA — the pill parks here (just
-          below the heading) and then scrolls away with the page. Zero-size,
-          non-visual; only marks a scroll position. Tune top-[..] to taste. */}
-      <div className="cta-dock pointer-events-none absolute inset-x-0 bottom-[40vh]" aria-hidden="true" />
 
       {/* Giant fading wordmark behind everything */}
       {/* flex-centered so the gsap y-tween never bakes the x-centering
@@ -80,6 +82,18 @@ export default function Outro() {
           from the noise.
         </h2>
       </div>
+
+      {/* Dock line for the floating waitlist CTA. Placed in normal flow a fixed
+          distance below the heading so the parked pill keeps a constant offset
+          from the title on every screen size — anchoring it to the section
+          bottom (vh) drifted with viewport height. Zero-height, non-visual; only
+          marks a scroll position, and the pill's bottom edge aligns to it. Tune
+          marginTop to move the pill nearer/further from the heading. */}
+      <div
+        className="cta-dock pointer-events-none h-0"
+        aria-hidden="true"
+        style={{ marginTop: '150px' }}
+      />
       <p className="absolute right-10 bottom-7 text-[11px] tracking-[1.5px] text-fg-dim max-md:right-1/2 max-md:translate-x-1/2">
         © 2026 · PULSE · BY ROOMONE
       </p>

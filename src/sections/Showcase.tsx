@@ -60,6 +60,10 @@ export default function Showcase({
   useLayoutEffect(() => {
     const section = sectionRef.current
     if (!section) return
+    // Touch browsers throttle scroll events during momentum, so scrubbed parallax
+    // trails the finger and reads as lag. Skip the scroll-tied pans on touch (the
+    // entrance fade below is a one-shot tween, so it stays).
+    const touch = window.matchMedia('(pointer: coarse)').matches
     const ctx = gsap.context(() => {
       gsap.from('.sc-text > *', {
         opacity: 0,
@@ -71,7 +75,7 @@ export default function Showcase({
       })
       // The tall screenshot pans slowly inside its window as we scroll by.
       // A video carries its own motion, so it's left alone.
-      if (!video) gsap.fromTo(
+      if (!video && !touch) gsap.fromTo(
         '.sc-shot img',
         { y: 0 },
         {
@@ -91,7 +95,7 @@ export default function Showcase({
           },
         },
       )
-      if (withDunes) {
+      if (withDunes && !touch) {
         gsap.fromTo(
           '.sc-dunes',
           { y: '18%' },

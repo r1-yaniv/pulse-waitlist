@@ -12,6 +12,11 @@ import type { Preference } from './lib/waitlist'
 
 gsap.registerPlugin(ScrollTrigger)
 
+// The URL bar showing/hiding on mobile fires resize events that re-run layout
+// and re-measure every ScrollTrigger mid-gesture, which stutters the scroll.
+// ignoreMobileResize stops that thrash without taking over scrolling itself.
+ScrollTrigger.config({ ignoreMobileResize: true })
+
 const DISCOVERY = {
   tag: '03 — DISCOVERY',
   heading: 'Your next position, found.',

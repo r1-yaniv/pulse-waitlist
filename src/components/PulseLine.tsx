@@ -16,6 +16,12 @@ export default function PulseLine({ className = '' }: { className?: string }) {
   useLayoutEffect(() => {
     const svg = svgRef.current
     if (!svg) return
+    // Touch browsers throttle scroll *events* during momentum scrolling (the
+    // page still scrolls smoothly via the compositor, but JS gets sparse
+    // updates), so a scrubbed draw visibly trails the finger. On touch we draw
+    // the line once as it enters view; on pointer devices we keep the scrubbed
+    // trace tied to scroll.
+    const touch = window.matchMedia('(pointer: coarse)').matches
     const ctx = gsap.context(() => {
       const paths = svg.querySelectorAll<SVGPathElement>('path')
       paths.forEach((path) => {
@@ -23,17 +29,24 @@ export default function PulseLine({ className = '' }: { className?: string }) {
         gsap.fromTo(
           path,
           { strokeDasharray: len, strokeDashoffset: len },
-          {
-            strokeDashoffset: 0,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: svg,
-              start: 'top bottom',
-              end: () => ScrollTrigger.maxScroll(window),
-              scrub: 1,
-              invalidateOnRefresh: true,
-            },
-          },
+          touch
+            ? {
+                strokeDashoffset: 0,
+                duration: 1.1,
+                ease: 'power2.out',
+                scrollTrigger: { trigger: svg, start: 'top 80%', once: true },
+              }
+            : {
+                strokeDashoffset: 0,
+                ease: 'none',
+                scrollTrigger: {
+                  trigger: svg,
+                  start: 'top bottom',
+                  end: () => ScrollTrigger.maxScroll(window),
+                  scrub: 0.4,
+                  invalidateOnRefresh: true,
+                },
+              },
         )
       })
     }, svg)

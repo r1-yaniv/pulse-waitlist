@@ -38,11 +38,6 @@ export default function WaitlistCTA({ status, count, onSubmit, onOpenShare }: Pr
   const [choice, setChoice] = useState<Choice | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  // Once the pill reaches its dock line in the Outro it stops floating and
-  // anchors into the page at the position it occupied — so further scrolling
-  // leaves it behind. dockTopRef holds that snapshotted document Y (px).
-  const [docked, setDocked] = useState(false)
-  const dockTopRef = useRef(0)
   const rootRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -97,28 +92,50 @@ export default function WaitlistCTA({ status, count, onSubmit, onOpenShare }: Pr
     }
   }, [expanded])
 
-  // Dock the pill at the .cta-dock marker (in the Outro). The trigger fires
-  // when the marker reaches the 7vh-from-bottom line — exactly where the
-  // floating pill's bottom already sits — so we snapshot the pill's current
-  // document position and switch fixed → absolute with no visual jump. Scrolling
-  // back above the line re-floats it.
+  // Park the pill at the .cta-dock marker (in the Outro). The pill stays
+  // `fixed` at the bottom of the viewport while floating, then once it reaches
+  // the dock line it should "anchor" into the page and scroll away with it.
+  //
+  // Rather than toggle fixed → absolute at a discrete scroll threshold (which
+  // snaps on fast scroll: the enter/leave callbacks fire at whatever scroll
+  // position the browser reaches when they run, overshooting the threshold, and
+  // the two positioning modes only line up *exactly* at it), we keep the pill
+  // `fixed` and drive a continuous translateY straight off the live scroll:
+  //   • scrollY ≤ dockScrollY → y = 0            (floats at bottom-[7vh])
+  //   • scrollY > dockScrollY → y = -(scrollY-dockScrollY)  (scrolls away with
+  //                                                           the page)
+  // It's recomputed every frame from scrollY, so there's no boundary callback
+  // to overshoot — no jump in either direction, at any scroll speed.
+  //
+  // dockScrollY is the scroll at which the floating pill's bottom edge reaches
+  // the marker: markerDocTop − (the pill's fixed bottom in viewport coords).
+  // Measuring the pill's bottom via getBoundingClientRect (with y pinned to 0)
+  // captures the real bottom-[7vh]/bottom-[5vh] offset across breakpoints.
   useLayoutEffect(() => {
+    const root = rootRef.current
     const dock = document.querySelector<HTMLElement>('.cta-dock')
-    if (!dock) return
+    if (!root || !dock) return
     const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: dock,
-        start: 'top bottom-=7vh',
-        invalidateOnRefresh: true,
-        onEnter: () => {
-          const root = rootRef.current
-          if (root) {
-            dockTopRef.current = root.getBoundingClientRect().top + window.scrollY
-          }
-          setDocked(true)
-        },
-        onLeaveBack: () => setDocked(false),
-      })
+      const setY = gsap.quickSetter(root, 'y', 'px')
+      let dockScrollY = 0
+      const apply = () => setY(-Math.max(0, window.scrollY - dockScrollY))
+      const measure = () => {
+        setY(0)
+        const rootBottom = root.getBoundingClientRect().bottom // viewport, fixed
+        const markerDocTop = dock.getBoundingClientRect().top + window.scrollY
+        dockScrollY = markerDocTop - rootBottom
+        apply()
+      }
+      // Drive the translate off gsap.ticker (every animation frame) instead of
+      // ScrollTrigger's onUpdate. On touch the browser throttles scroll *events*
+      // during momentum even though the page scrolls smoothly, so an
+      // event-driven update made the pill visibly trail the finger; reading
+      // scrollY each frame keeps it locked to the scroll position. ScrollTrigger
+      // is kept only to re-measure the dock point on refresh (resize/layout).
+      gsap.ticker.add(apply)
+      ScrollTrigger.create({ onRefresh: measure })
+      measure()
+      return () => gsap.ticker.remove(apply)
     })
     return () => ctx.revert()
   }, [])
@@ -135,18 +152,22 @@ export default function WaitlistCTA({ status, count, onSubmit, onOpenShare }: Pr
   return (
     <div
       ref={rootRef}
-      // Floating: the pill sits 7vh above the viewport bottom via `fixed`. Once
-      // it reaches the dock line it switches to `absolute` at its snapshotted
-      // document position (dockTopRef), entering page flow so it scrolls away.
-      className={`pointer-events-none inset-x-0 z-[60] flex justify-center ${docked ? 'absolute' : 'fixed bottom-[7vh] max-md:bottom-[5vh]'
-        }`}
-      style={docked ? { top: dockTopRef.current } : undefined}
+      // The pill sits 7vh above the viewport bottom via `fixed`, then a
+      // scroll-driven translateY (see the dock effect) carries it up and out of
+      // view once it reaches the Outro dock line, so it appears to anchor into
+      // the page and scroll away — continuously, with no fixed↔absolute snap.
+      className="pointer-events-none fixed inset-x-0 bottom-[7vh] z-[60] flex justify-center max-md:bottom-[5vh]"
     >
       <div className="flex flex-col items-center gap-3">
       <div
+        // backdrop-blur is gated to md+ only: this pill is `fixed` over the whole
+        // scrolling page, and a fixed backdrop-filter forces mobile Safari to
+        // re-sample the blurred backdrop every scroll frame — enough to tank the
+        // page to single-digit fps and make every scroll-driven effect lag. On
+        // mobile we drop the blur and use an opaque fill so it still reads solid.
         className={`pointer-events-auto relative overflow-hidden rounded-[26px] [transform:translateZ(0)] transition-[width,background-color,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.34,1.4,0.5,1)] ${expanded && !joined
-          ? 'w-[min(496px,92vw)] border border-accent/45 bg-[#101a2e]/70 shadow-[0_18px_60px_-12px_var(--color-shadow),0_0_40px_-12px_var(--color-glow)] backdrop-blur-xl'
-          : 'w-[264px] cursor-pointer border border-transparent bg-accent/68 shadow-[0_12px_40px_-8px_var(--color-glow)] backdrop-blur-md hover:bg-accent/85 hover:shadow-[0_16px_52px_-8px_var(--color-glow)]'
+          ? 'w-[min(496px,92vw)] border border-accent/45 bg-[#101a2e] md:bg-[#101a2e]/70 shadow-[0_18px_60px_-12px_var(--color-shadow),0_0_40px_-12px_var(--color-glow)] md:backdrop-blur-xl'
+          : 'w-[264px] cursor-pointer border border-transparent bg-accent md:bg-accent/68 shadow-[0_12px_40px_-8px_var(--color-glow)] md:backdrop-blur-md hover:bg-accent/85 hover:shadow-[0_16px_52px_-8px_var(--color-glow)]'
           }`}
         onClick={activate}
         role={asButton ? 'button' : undefined}
