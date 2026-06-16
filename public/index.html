@@ -87,7 +87,8 @@
                   <path d="M20 6 9 17l-5-5" />
                 </svg>
               </span>
-              <span class="sc-bullet-label">Search in plain English and find cross-venue arbitrage</span>
+              <span class="sc-bullet-label">Search for new bets in plain English, and find cross-venue
+                arbitrage</span>
             </li>
             <li class="sc-bullet">
               <span class="sc-check">
@@ -237,13 +238,14 @@
         <div class="cta-footer" id="cta-footer">
           <div class="cta-footer-clip">
             <div class="cta-footer-row">
-              <span class="cta-error" id="cta-error" role="alert"></span>
-              <div class="cta-choices">
+              <div class="cta-choices" role="group" aria-label="Choose how you'd like to hear from us">
                 <button type="button" class="cta-choice" data-choice="updates" aria-pressed="false">send me
                   updates</button>
-                <button type="button" class="cta-choice" data-choice="launch" aria-pressed="false">launch message
-                  only</button>
+                <span class="cta-or" aria-hidden="true">or</span>
+                <button type="button" class="cta-choice" data-choice="launch" aria-pressed="false">send me a message
+                  at launch</button>
               </div>
+              <span class="cta-error" id="cta-error" role="alert"></span>
             </div>
           </div>
         </div>
@@ -298,6 +300,18 @@
             </span>
             <span class="share-copy-label" id="share-copy-label">Copy</span>
           </button>
+        </div>
+
+        <!-- Mailing preference (persists to the DB) -->
+        <div class="share-pref">
+          <span class="share-pref-label">What should we email you?</span>
+          <div class="share-pref-choices" role="group" aria-label="Email preference">
+            <button type="button" class="share-pref-choice" id="share-pref-updates" data-pref="updates"
+              aria-pressed="false">Send me updates</button>
+            <button type="button" class="share-pref-choice" id="share-pref-launch" data-pref="launch"
+              aria-pressed="false">A message at launch</button>
+          </div>
+          <span class="share-pref-status" id="share-pref-status" role="status"></span>
         </div>
       </div>
     </div>
