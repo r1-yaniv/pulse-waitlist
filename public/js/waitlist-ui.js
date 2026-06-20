@@ -207,8 +207,11 @@ function collapse() {
 function setSubmitting(on) {
   state.submitting = on
   el.submit.disabled = on
-  el.arrow.hidden = on
-  el.spinner.hidden = !on
+  // `.cta-arrow`/`.cta-spinner` are inline <svg> (SVGElement), which has no
+  // `hidden` IDL property — assigning `.hidden` sets a dead expando instead of
+  // the content attribute the CSS `[hidden]` rule matches. Toggle the attribute.
+  el.arrow.toggleAttribute('hidden', on)
+  el.spinner.toggleAttribute('hidden', !on)
 }
 
 function showError(msg) {
@@ -349,8 +352,9 @@ function closeShare() {
 
 let copyTimer
 function resetCopy() {
-  el.iconCopy.hidden = false
-  el.iconCheck.hidden = true
+  // <svg> icons: toggle the `hidden` attribute, not the (nonexistent) property.
+  el.iconCopy.toggleAttribute('hidden', false)
+  el.iconCheck.toggleAttribute('hidden', true)
   el.shareCopyLabel.textContent = 'Copy'
   el.shareCopy.setAttribute('aria-label', 'Copy referral link')
 }
@@ -375,8 +379,8 @@ async function copyLink() {
     }
     document.body.removeChild(ta)
   }
-  el.iconCopy.hidden = true
-  el.iconCheck.hidden = false
+  el.iconCopy.toggleAttribute('hidden', true)
+  el.iconCheck.toggleAttribute('hidden', false)
   el.shareCopyLabel.textContent = 'Copied'
   el.shareCopy.setAttribute('aria-label', 'Link copied')
   if (copyTimer) clearTimeout(copyTimer)
