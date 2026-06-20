@@ -22,8 +22,11 @@ function initMuteToggle() {
     const next = !video.muted
     video.muted = next
     if (!next) video.play().catch(() => {})
-    iconMuted.hidden = !next
-    iconUnmuted.hidden = next
+    // `<svg>` is an SVGElement, which has no `hidden` IDL property — assigning
+    // `.hidden` sets a dead expando, not the content attribute, so the CSS
+    // `[hidden]` rule never matches. Toggle the attribute itself.
+    iconMuted.toggleAttribute('hidden', !next)
+    iconUnmuted.toggleAttribute('hidden', next)
     btn.setAttribute('aria-label', next ? 'Unmute trailer' : 'Mute trailer')
     btn.setAttribute('aria-pressed', String(!next))
   })
