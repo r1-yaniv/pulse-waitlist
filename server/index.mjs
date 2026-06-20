@@ -53,13 +53,18 @@ app.get('/api/status', async (req, res, next) => {
   const uid = String(req.query.uid ?? '')
   if (!UID_RE.test(uid)) return res.status(400).json({ error: 'invalid uid' })
   try {
+    // `idx` is a monotonic identity, so a row's gapless position is the number
+    // of rows at or before it. We display this rank — never the raw idx — so the
+    // "you are #N" shown always matches COUNT(*) and has no gaps from burned
+    // identity values (ON CONFLICT re-submits, retries) or deleted rows.
     const { rows } = await pool.query(
-      'SELECT idx, preference FROM waitlist WHERE uid = $1',
+      `SELECT (SELECT COUNT(*)::int FROM waitlist w2 WHERE w2.idx <= w.idx) AS position,
+              preference
+         FROM waitlist w WHERE uid = $1`,
       [uid],
     )
     if (rows.length === 0) return res.json({ joined: false })
-    // pg returns BIGINT as a string; positions stay well within Number range.
-    res.json({ joined: true, index: Number(rows[0].idx), preference: rows[0].preference })
+    res.json({ joined: true, index: rows[0].position, preference: rows[0].preference })
   } catch (err) {
     next(err)
   }
@@ -107,11 +112,19 @@ app.post('/api/join', async (req, res, next) => {
   // Position and uid stay first-write-wins (DO UPDATE keeps the original idx/uid),
   // but a re-submit refreshes the mailing preference. (xmax = 0) discriminates
   // fresh insert vs conflict.
+  // The CTE upserts, then derives the gapless rank (rows at or before this idx)
+  // so the returned position matches COUNT(*) and never exposes the raw,
+  // gap-prone identity value. See /api/status for the rationale.
   const sql = `
-    INSERT INTO waitlist (uid, email, referrer_uid, preference)
-    VALUES ($1, $2, $3, $4)
-    ON CONFLICT (email) DO UPDATE SET preference = EXCLUDED.preference
-    RETURNING idx, uid, preference, (xmax = 0) AS inserted
+    WITH upsert AS (
+      INSERT INTO waitlist (uid, email, referrer_uid, preference)
+      VALUES ($1, $2, $3, $4)
+      ON CONFLICT (email) DO UPDATE SET preference = EXCLUDED.preference
+      RETURNING idx, uid, preference, (xmax = 0) AS inserted
+    )
+    SELECT u.uid, u.preference, u.inserted,
+           (SELECT COUNT(*)::int FROM waitlist w WHERE w.idx <= u.idx) AS position
+      FROM upsert u
   `
 
   let attemptUid = uid
@@ -120,7 +133,7 @@ app.post('/api/join', async (req, res, next) => {
       const { rows } = await pool.query(sql, [attemptUid, email, ref, preference])
       const row = rows[0]
       return res.json({
-        index: Number(row.idx),
+        index: row.position,
         uid: row.uid,
         preference: row.preference,
         merged: !row.inserted,
