@@ -112,19 +112,11 @@ app.post('/api/join', async (req, res, next) => {
   // Position and uid stay first-write-wins (DO UPDATE keeps the original idx/uid),
   // but a re-submit refreshes the mailing preference. (xmax = 0) discriminates
   // fresh insert vs conflict.
-  // The CTE upserts, then derives the gapless rank (rows at or before this idx)
-  // so the returned position matches COUNT(*) and never exposes the raw,
-  // gap-prone identity value. See /api/status for the rationale.
   const sql = `
-    WITH upsert AS (
-      INSERT INTO waitlist (uid, email, referrer_uid, preference)
-      VALUES ($1, $2, $3, $4)
-      ON CONFLICT (email) DO UPDATE SET preference = EXCLUDED.preference
-      RETURNING idx, uid, preference, (xmax = 0) AS inserted
-    )
-    SELECT u.uid, u.preference, u.inserted,
-           (SELECT COUNT(*)::int FROM waitlist w WHERE w.idx <= u.idx) AS position
-      FROM upsert u
+    INSERT INTO waitlist (uid, email, referrer_uid, preference)
+    VALUES ($1, $2, $3, $4)
+    ON CONFLICT (email) DO UPDATE SET preference = EXCLUDED.preference
+    RETURNING idx, uid, preference, (xmax = 0) AS inserted
   `
 
   let attemptUid = uid
@@ -132,8 +124,18 @@ app.post('/api/join', async (req, res, next) => {
     try {
       const { rows } = await pool.query(sql, [attemptUid, email, ref, preference])
       const row = rows[0]
+      // Derive the gapless rank (rows at or before this idx) in a SEPARATE
+      // statement, never the raw gap-prone idx. It must not share the insert's
+      // statement: a data-modifying CTE's SELECT runs against the pre-insert
+      // snapshot, so the just-inserted row is invisible and a fresh join would
+      // undercount by one. A follow-up query sees the new row. Concurrent joins
+      // only ever take higher idx values, so they can't shift this rank.
+      const { rows: ranked } = await pool.query(
+        'SELECT COUNT(*)::int AS position FROM waitlist WHERE idx <= $1',
+        [row.idx],
+      )
       return res.json({
-        index: row.position,
+        index: ranked[0].position,
         uid: row.uid,
         preference: row.preference,
         merged: !row.inserted,
