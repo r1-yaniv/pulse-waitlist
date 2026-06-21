@@ -326,6 +326,13 @@ button {
   font-size: 15px;
   color: var(--color-fg-muted);
 }
+.sc-bottomline {
+  margin-top: 22px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--color-fg);
+}
 .showcase-window-col {
   position: relative;
   min-width: 0;
