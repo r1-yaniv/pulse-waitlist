@@ -28,7 +28,6 @@ export function initWaitlist() {
   el = {
     root: document.getElementById('cta-root'),
     pill: document.getElementById('cta-pill'),
-    joinedIndex: document.getElementById('cta-joined-index'),
     form: document.getElementById('cta-form'),
     email: document.getElementById('cta-email'),
     submit: document.getElementById('cta-submit'),
@@ -40,7 +39,6 @@ export function initWaitlist() {
     dock: document.getElementById('cta-dock'),
     // share modal
     overlay: document.getElementById('share-overlay'),
-    shareIndex: document.getElementById('share-index'),
     shareLink: document.getElementById('share-link-text'),
     shareCopy: document.getElementById('share-copy'),
     shareCopyLabel: document.getElementById('share-copy-label'),
@@ -226,10 +224,9 @@ function render() {
   el.pill.classList.toggle('is-expanded', state.expanded && !joined)
 
   if (joined) {
-    el.joinedIndex.textContent = state.status.index.toLocaleString('en-US')
     el.pill.setAttribute(
       'aria-label',
-      `You are number ${state.status.index} on the waitlist — open your share card`,
+      "You're on the waitlist — open your share card",
     )
   } else if (state.expanded) {
     el.pill.removeAttribute('aria-label')
@@ -330,7 +327,6 @@ function openShare() {
 
   const origin = window.location.host
   const displayLink = `${origin}/?ref=${state.uid}`
-  el.shareIndex.textContent = state.status.index.toLocaleString('en-US')
   el.shareLink.textContent = displayLink
   el.shareCopy.dataset.url = `https://${displayLink}`
   resetCopy()
