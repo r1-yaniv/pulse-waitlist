@@ -589,7 +589,7 @@ button {
   height: 60px;
 }
 
-/* Joined "you are #N" */
+/* Joined: perks confirmation */
 .cta-joined {
   position: absolute;
   inset: 0;
@@ -769,6 +769,8 @@ button {
 }
 
 .cta-count {
+  /* Temporarily hidden — keep markup/logic, just don't show the social-proof count. */
+  display: none !important;
   font-family: var(--font-body);
   font-size: 14px;
   color: var(--color-fg-muted);
@@ -845,13 +847,13 @@ button {
   letter-spacing: 0.6px;
   color: var(--ink3);
 }
-.share-number {
+.share-headline {
   font-weight: 700;
   letter-spacing: -1px;
   line-height: 1.05;
-  font-variant-numeric: tabular-nums;
-  font-size: clamp(52px, 16vw, 75px);
+  font-size: clamp(40px, 12vw, 58px);
   color: var(--ink);
+  text-align: center;
 }
 .share-sub {
   font-size: 22px;
