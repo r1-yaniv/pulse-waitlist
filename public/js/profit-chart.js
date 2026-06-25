@@ -67,6 +67,10 @@ const TIMING = {
   lineDrawDelayMs: 90, // the With-Pulse line starts this long after the Without line
 }
 
+// Show an "N×" advantage badge between the With-Pulse and Without-Pulse points
+// once With-Pulse P&L is at least this many times the Without-Pulse P&L.
+const MULTIPLIER_THRESHOLD = 1.4
+
 // --- scenario data (from the workbook; week 0..36) ---
 const WITH = [0, 30, 60, 100, 130, 160, 190, 200, 120, 120, 120, 120, 229, 270, 311, 284, 365, 461, 570, 720, 884, 1047, 1184, 1214, 1234, 1204, 1174, 1154, 1134, 1254, 1434, 1634, 1814, 2014, 2234, 2414, 2534]
 const WITHOUT = [0, 30, 60, 100, 130, 160, 190, 200, 170, 100, 20, -100, -100, -70, -40, -60, 0, 70, 150, 260, 380, 500, 600, 630, 650, 620, 590, 550, 530, 500, 450, 390, 330, 270, 210, 170, 150]
@@ -476,6 +480,20 @@ export function initProfitChart(root) {
         }
       } else {
         sc.push(svgEl('circle', { cx: sx, cy: wy, r: 5 * k, fill: C.accent, stroke: C.bg, 'stroke-width': 2 * k }))
+      }
+      // Advantage multiplier badge, centered between the two points — shown once
+      // With-Pulse is far enough ahead and there's vertical room to fit it.
+      const wv = interpAt(WITH, ewf), wov = interpAt(WITHOUT, ewf)
+      const mult = wov > 0 ? wv / wov : Infinity
+      const bh = mob ? 40 : 26
+      if (wv > 0 && wov > 0 && mult >= MULTIPLIER_THRESHOLD && Math.abs(oy - wy) >= bh + 12) {
+        const my = (wy + oy) / 2
+        const label = (mult >= 10 ? Math.round(mult) : mult.toFixed(1)) + '×'
+        const bw = mob ? 86 : 54
+        sc.push(svgEl('g', { transform: `translate(${sx},${my})` }, [
+          svgEl('rect', { x: -bw / 2, y: -bh / 2, width: bw, height: bh, rx: bh / 2, fill: 'rgba(8,12,20,.94)', stroke: 'rgba(87,157,255,.55)', 'stroke-width': mob ? 1.6 : 1 }),
+          svgEl('text', { x: 0, y: mob ? 8 : 5, 'text-anchor': 'middle', 'font-size': mob ? 24 : 15, 'font-weight': 700, 'font-family': MONO, fill: C.accentBright, text: label }),
+        ]))
       }
       kids.push(svgEl('g', null, sc))
     }
