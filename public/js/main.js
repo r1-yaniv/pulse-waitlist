@@ -6,6 +6,7 @@
 import { isCoarsePointer, onReveal, scrollProgress } from './scrollfx.js'
 import { initWaitlist } from './waitlist-ui.js'
 import { initOpenReplay } from './analytics.js'
+import { initProfitChart } from './profit-chart.js'
 
 const reducedMotion = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -32,10 +33,70 @@ function initMuteToggle() {
   })
 }
 
+// --------------------------- profit chart (graph hero) ---------------------------
+// Builds the chart and returns its handle (or null). Revealing the lines and
+// kicking off autoplay is owned by the graph-hero intro choreography below, so
+// it can be sequenced after the title and the chart frame.
+function initGraphChart() {
+  const root = document.getElementById('profit-chart')
+  if (!root) return null
+  return initProfitChart(root) || null
+}
+
+// --------------------------- graph hero intro choreography ---------------------------
+// Deliberate above-the-fold reveal sequence on load:
+//   1) title + subtitle rise in
+//   2) the chart frame appears and its P&L lines draw on
+//   3) the "See The Difference" titlebar (eyebrow + play/pause control) fades in
+//   4) the chart starts its walkthrough autoplay immediately — the moment the
+//      titlebar reveals, no idle wait; hovering the chart interrupts it as usual
+// The closing "Trading blind…" line is intentionally NOT part of this sequence —
+// it reveals on scroll (see initAnimations). Touch / reduced-motion skip the
+// staged timing and show everything at once.
+const GH_SEQ = {
+  headMs: 250, // title + subtitle
+  chartMs: 1050, // chart frame fades in + line draw-on begins
+  titleMs: 2850, // "See The Difference" + autoplay — after the lines have drawn in
+}
+
+function initGraphHeroSequence(chart) {
+  const ghHead = document.querySelector('.gh-head')
+  const ghChart = document.querySelector('.gh-chart-wrap')
+  const ghTitlebar = document.querySelector('.gh-chart-titlebar')
+  const reveal = (elm) => elm && elm.classList.add('is-in')
+
+  // Mount the chart's play/pause control beside the "See The Difference" line.
+  if (chart && chart.playButton && ghTitlebar) ghTitlebar.appendChild(chart.playButton)
+
+  // Touch / reduced motion: no staged timing — show it all and reveal the chart.
+  if (reducedMotion() || isCoarsePointer()) {
+    reveal(ghHead)
+    reveal(ghChart)
+    reveal(ghTitlebar)
+    if (chart) chart.reveal()
+    return
+  }
+
+  setTimeout(() => reveal(ghHead), GH_SEQ.headMs)
+  setTimeout(() => {
+    reveal(ghChart)
+    if (chart) chart.reveal() // draws the lines in
+  }, GH_SEQ.chartMs)
+  setTimeout(() => {
+    reveal(ghTitlebar)
+    if (chart) chart.play() // kick off the walkthrough right away
+  }, GH_SEQ.titleMs)
+}
+
 // --------------------------- scroll animations ---------------------------
 function initAnimations() {
   const touch = isCoarsePointer()
   const reduced = reducedMotion()
+
+  // NOTE: the graph-hero title, chart frame, line draw-on, "See The Difference"
+  // eyebrow and autoplay are choreographed on load by initGraphHeroSequence().
+  // The closing "Trading blind…" line below is the one graph-hero element that
+  // reveals on scroll instead.
 
   // On touch devices, scroll-triggered reveals fire while the content is still
   // far below the fold (sections are ~100vh tall), so the fade finishes
@@ -49,6 +110,11 @@ function initAnimations() {
     document.documentElement.classList.add('no-scrollfx')
     return
   }
+
+  // Closing "Trading blind…" line: reveals as it scrolls into view (it sits at
+  // the bottom of the ~100svh graph hero, below the fold on load).
+  const ghBottom = document.querySelector('.gh-bottomline')
+  if (ghBottom) onReveal(ghBottom, 0.85, () => ghBottom.classList.add('is-in'))
 
   // Showcase copy column: staggered fade/rise at "top 62%".
   const showcase = document.querySelector('.showcase')
@@ -107,6 +173,8 @@ function initAnimations() {
 
 // --------------------------- boot ---------------------------
 initMuteToggle()
+const profitChart = initGraphChart()
+initGraphHeroSequence(profitChart)
 initAnimations()
 initWaitlist()
 initOpenReplay()

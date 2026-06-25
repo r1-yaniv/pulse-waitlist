@@ -155,7 +155,15 @@ app.post('/api/join', async (req, res, next) => {
 })
 
 // Static frontend + fallback (everything that isn't /api/*).
-app.use(express.static(PUBLIC_DIR))
+// `no-cache` = the browser may keep a copy but MUST revalidate every load, so a
+// freshly-edited JS/CSS/HTML asset is always picked up (ES modules are otherwise
+// cached aggressively and a stale build silently sticks around).
+app.use(express.static(PUBLIC_DIR, {
+  etag: true,
+  setHeaders: (res, path) => {
+    if (/\.(js|css|html)$/.test(path)) res.setHeader('Cache-Control', 'no-cache')
+  },
+}))
 app.get(/^(?!\/api\/).*/, (_req, res) => {
   res.sendFile(join(PUBLIC_DIR, 'index.html'))
 })

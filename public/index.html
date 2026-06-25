@@ -63,6 +63,27 @@
       </button>
     </header>
 
+    <!-- ===================== Graph hero ===================== -->
+    <section class="graph-hero">
+      <div class="graph-hero-glow"></div>
+      <div class="graph-hero-inner">
+        <div class="gh-head fx-reveal">
+          <h1 class="gh-heading">The Bloomberg Terminal <br />for prediction markets.</h1>
+          <p class="gh-sub">Positions, market movement, news, and opportunities in one AI-Native command center.</p>
+        </div>
+        <div class="gh-chart-titlebar gh-reveal">
+          <p class="gh-chart-title">See The Difference</p>
+          <!-- the chart's play/pause control is mounted here by main.js -->
+        </div>
+        <div class="gh-chart-wrap fx-reveal">
+          <div class="gh-chart" id="profit-chart" data-pchart></div>
+          <p class="gh-chart-disclaimer">Illustrative example based on mock performance data.</p>
+        </div>
+        <p class="gh-bottomline gh-reveal">Trading blind is for amateurs. <br />Be a professional. Use Pulse.</p>
+      </div>
+      <div class="hero-scroll-cue">SCROLL</div>
+    </section>
+
     <!-- ===================== Trailer hero ===================== -->
     <section class="hero">
       <div class="hero-black"></div>
@@ -162,44 +183,40 @@
     <section class="outro" id="outro">
       <div class="dotmesh outro-dotmesh"></div>
 
-      <!-- Giant fading wordmark behind everything -->
-      <div class="outro-wordmark" id="outro-wordmark" aria-hidden="true">
-        <span class="outro-wordmark-text">Pulse</span>
-      </div>
+      <!-- The wordmark sizes the section; the EKG line + dock overlay it so
+           there is no empty space beneath the giant "Pulse". -->
+      <div class="outro-reveal">
+        <!-- Giant fading wordmark -->
+        <div class="outro-wordmark" id="outro-wordmark" aria-hidden="true">
+          <span class="outro-wordmark-text">Pulse</span>
+        </div>
 
-      <!-- EKG pulse line crossing the wordmark -->
-      <div class="outro-pulse">
-        <div class="pulse-glow outro-pulse-glow"></div>
-        <svg class="pulse-line" id="pulse-line" viewBox="0 0 900 300" fill="none" aria-hidden="true">
-          <defs>
-            <linearGradient id="pulse-stroke" x1="0" y1="0" x2="900" y2="0" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="var(--color-accent-soft)" />
-              <stop offset="0.25" stop-color="var(--color-accent-bright)" />
-              <stop offset="0.75" stop-color="var(--color-accent-bright)" />
-              <stop offset="1" stop-color="var(--color-accent-soft)" />
-            </linearGradient>
-            <filter id="pulse-blur" x="-10%" y="-50%" width="120%" height="200%">
-              <feGaussianBlur stdDeviation="9" />
-            </filter>
-          </defs>
-          <path d="M0 150l320 0 30-14 30 14 50 0 32-102 32 194 32-92 54 0 40-26 40 26 240 0"
-            stroke="var(--color-accent)" stroke-width="7" stroke-linejoin="round" stroke-linecap="round" opacity="0.5"
-            filter="url(#pulse-blur)" class="pulse-glow" />
-          <path d="M0 150l320 0 30-14 30 14 50 0 32-102 32 194 32-92 54 0 40-26 40 26 240 0" stroke="url(#pulse-stroke)"
-            stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
-        </svg>
-      </div>
+        <!-- EKG pulse line crossing the wordmark -->
+        <div class="outro-pulse">
+          <div class="pulse-glow outro-pulse-glow"></div>
+          <svg class="pulse-line" id="pulse-line" viewBox="0 0 900 300" fill="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="pulse-stroke" x1="0" y1="0" x2="900" y2="0" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="var(--color-accent-soft)" />
+                <stop offset="0.25" stop-color="var(--color-accent-bright)" />
+                <stop offset="0.75" stop-color="var(--color-accent-bright)" />
+                <stop offset="1" stop-color="var(--color-accent-soft)" />
+              </linearGradient>
+              <filter id="pulse-blur" x="-10%" y="-50%" width="120%" height="200%">
+                <feGaussianBlur stdDeviation="9" />
+              </filter>
+            </defs>
+            <path d="M0 150l320 0 30-14 30 14 50 0 32-102 32 194 32-92 54 0 40-26 40 26 240 0"
+              stroke="var(--color-accent)" stroke-width="7" stroke-linejoin="round" stroke-linecap="round" opacity="0.5"
+              filter="url(#pulse-blur)" class="pulse-glow" />
+            <path d="M0 150l320 0 30-14 30 14 50 0 32-102 32 194 32-92 54 0 40-26 40 26 240 0"
+              stroke="url(#pulse-stroke)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+          </svg>
+        </div>
 
-      <div class="outro-stack fx-reveal" id="outro-stack">
-        <h2 class="outro-heading">The Bloomberg Terminal<br />for prediction markets.</h2>
-        <p class="outro-sub">
-          One cross-venue AI-native command center for your whole portfolio — whether you
-          trade for a living or you're just getting started.
-        </p>
+        <!-- Dock line for the floating waitlist CTA — parks it over the wordmark. -->
+        <div class="cta-dock" id="cta-dock" aria-hidden="true"></div>
       </div>
-
-      <!-- Dock line for the floating waitlist CTA. -->
-      <div class="cta-dock" id="cta-dock" aria-hidden="true"></div>
 
       <p class="outro-footer">© 2026 · PULSE</p>
     </section>
