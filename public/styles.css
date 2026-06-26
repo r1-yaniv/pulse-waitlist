@@ -1259,6 +1259,13 @@ button {
 
 .gh-chart-wrap {
   width: 100%;
+  /* The chart SVG is width:100% with height:auto at a ~1.79 aspect ratio, so its
+     height tracks its width. Left uncapped (94vw) it grows enormous on wide
+     screens — tall enough to push the heading off the top and the closing line
+     off the bottom. Cap the width so it stays a contained, centered chart with
+     side margins on big screens. */
+  max-width: 1500px;
+  margin-inline: auto;
 }
 
 /* Eyebrow row directly above the chart: the "See The Difference" line with the
