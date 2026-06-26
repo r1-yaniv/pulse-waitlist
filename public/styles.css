@@ -1321,6 +1321,12 @@ button {
   flex-direction: column;
   gap: 16px;
   width: 100%;
+  /* The SVG is full of <text> nodes; without this a long-press on mobile selects
+     the nearest label and pops the iOS text magnifier. Nothing in the chart is
+     meant to be selectable, so suppress selection + the touch callout outright. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .pchart-frame {
@@ -1489,9 +1495,120 @@ button {
   transition: width 0.12s linear;
 }
 
+/* ---- Mobile scrubber bar (hidden on desktop; shown when the chart's JS marks
+   the frame .is-mobile). Drag replaces finger-on-graph scrubbing on touch. ---- */
+.pchart-scrub {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 2px 2px;
+}
+
+.pchart-frame.is-mobile .pchart-scrub {
+  display: flex;
+}
+
+.pchart-scrub-hint {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--color-fg-dim);
+}
+
+.pchart-scrub-input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 26px; /* generous touch target */
+  background: transparent;
+  cursor: pointer;
+  touch-action: pan-y; /* let vertical page scroll start on the slider too */
+}
+
+/* Track */
+.pchart-scrub-input::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.pchart-scrub-input::-moz-range-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Thumb */
+.pchart-scrub-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -9px; /* center the 22px thumb on the 4px track */
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: var(--color-accent);
+  border: 2px solid var(--color-bg-deep);
+  box-shadow: 0 0 0 1px rgba(87, 157, 255, 0.55), 0 0 14px rgba(87, 157, 255, 0.55);
+}
+
+.pchart-scrub-input::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: var(--color-accent);
+  border: 2px solid var(--color-bg-deep);
+  box-shadow: 0 0 0 1px rgba(87, 157, 255, 0.55), 0 0 14px rgba(87, 157, 255, 0.55);
+}
+
+.pchart-scrub-input:focus-visible {
+  outline: none;
+}
+
+.pchart-scrub-input:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 2px var(--color-accent-bright), 0 0 14px rgba(87, 157, 255, 0.7);
+}
+
 @media (max-width: 720px) {
   .pchart-legend-val {
     font-size: 14px;
+  }
+
+  /* On mobile the chart's JS pins the card edge-to-edge (left/right: 13px) so it
+     reads as a banner across the top of the plot. The desktop fixed `width`
+     would otherwise win over `right` and leave the card stuck at ~268px on the
+     left — let it span instead, and tighten the type/padding so the banner
+     covers as little of the (short) mobile chart as possible. */
+  .pchart-card {
+    width: auto;
+    max-width: none;
+    padding: 12px 14px;
+    border-radius: 12px;
+  }
+
+  .pchart-card-head {
+    margin-bottom: 6px;
+  }
+
+  .pchart-card-title {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .pchart-card-detail {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .pchart-card-down {
+    margin-top: 8px;
+    padding: 8px 10px;
+  }
+
+  .pchart-card-down-text {
+    font-size: 11.5px;
   }
 }
 

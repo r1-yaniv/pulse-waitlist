@@ -60,7 +60,7 @@ const TIMING = {
 
   // Idle behaviour.
   autoStartDelaySec: 4, // seconds after load before autoplay first kicks off
-  idleRestartSec: 4, // seconds of no interaction before autoplay restarts
+  idleRestartSec: 1, // seconds of no interaction before autoplay restarts
 
   // Line "draw-on" — the P&L lines scrub in when the chart enters view.
   lineDrawMs: 1600, // duration of the draw-on — HIGHER = slower scrub-in
@@ -86,6 +86,12 @@ const BEATS = [
   { wk: 28, icon: '', tag: 'PULSE ADDS', title: 'Buy the dip with conviction', detail: 'Underdog keeps slipping. Pulse’s read: the thesis is intact. You buy the dip and add more shares.', down: 'You miss the full story.' },
   { wk: LAST, icon: '', tag: 'CONTRACT 3 RESOLVES', title: 'Underdog wins', detail: '', down: 'You miss out on another $1,800.' },
 ]
+
+// The advantage badge stays hidden until the scrubber reaches the
+// "RESOLVE + ROLL" beat — before the first contract pays out and rolls forward,
+// the gap isn't yet the point we're making. Derived from BEATS so it tracks the
+// beat if its week ever moves.
+const MULTIPLIER_START_WK = BEATS.find((b) => b.tag === 'RESOLVE + ROLL').wk
 
 const SECTIONS = [
   { a: 0, b: 11.5, t: '1 · THE ALERT' },
@@ -132,6 +138,7 @@ export function initProfitChart(root) {
   }
   let inGraph = false
   let idleTimer = null
+  let initialPlayTimer = null // mobile: one-shot autoplay kickoff after the draw-on settles
   let playIv = null
   let playSegs = null
   let playTotal = 0
@@ -188,10 +195,46 @@ export function initProfitChart(root) {
   // built here but mounted next to the "See The Difference" title by main.js —
   // it keeps all its wiring regardless of where in the DOM it lives.
   const head = el('div', { class: 'pchart-head' }, [legend])
-  frame.append(head, svgHost, card)
+
+  // Mobile scrubber bar. On touch screens, dragging a finger directly on the
+  // SVG is fiddly (it fights page scroll and there's no obvious affordance), so
+  // mobile gets this range slider under the chart instead — see handleTouch,
+  // which no-ops the direct-on-graph scrub on mobile. Lives OUTSIDE svgHost so
+  // the per-frame render() (which rebuilds the SVG) never tears out the live
+  // input mid-drag; render() only writes its `.value` to keep the thumb synced
+  // with autoplay. Hidden on desktop via CSS (.pchart-frame:not(.is-mobile)).
+  const scrubInput = el('input', {
+    class: 'pchart-scrub-input', type: 'range', min: '0', max: String(LAST), step: '1',
+    value: String(LAST), 'aria-label': 'Scrub the season timeline',
+  })
+  const scrub = el('div', { class: 'pchart-scrub' }, [
+    scrubInput,
+  ])
+
+  frame.append(head, svgHost, scrub, card)
   root.append(frame)
 
   playBtn.addEventListener('click', () => { if (state.playing) pausePlay(); else play() })
+
+  // ---- mobile scrubber wiring ----
+  // Treat slider drags exactly like a hover-scrub: interrupt autoplay, hold the
+  // chart at the chosen week, then let the idle timer restart the walkthrough.
+  function scrubStart() {
+    inGraph = true; clearIdle()
+    // If the user grabs the slider before the load autoplay fires, cancel it —
+    // they're driving now, and mobile never re-arms autoplay.
+    if (initialPlayTimer) { clearTimeout(initialPlayTimer); initialPlayTimer = null }
+    if (state.playing) stopPlay()
+  }
+  scrubInput.addEventListener('pointerdown', scrubStart)
+  scrubInput.addEventListener('input', () => {
+    scrubStart()
+    const wk = Number(scrubInput.value)
+    if (wk !== state.hover) { state.hover = wk; render() }
+  })
+  const scrubEnd = () => { inGraph = false; scheduleIdle(TIMING.idleRestartSec) }
+  scrubInput.addEventListener('pointerup', scrubEnd)
+  scrubInput.addEventListener('pointercancel', scrubEnd)
 
   // ---- render ----
   function render() {
@@ -243,6 +286,11 @@ export function initProfitChart(root) {
       playBtn.setAttribute('aria-label', showPause ? 'Pause' : 'Play the story')
     }
     frame.classList.toggle('is-mobile', mob)
+    // Keep the mobile slider thumb in sync with whatever week is shown (autoplay
+    // sweep, paused beat, or overall). Skipped while the user is actively
+    // dragging it — they own the value then, and we'd only be writing it back
+    // unchanged anyway since hover === the slider value during a drag.
+    if (document.activeElement !== scrubInput) scrubInput.value = String(ew)
   }
 
   // Draw-on for the P&L lines. Lines/gap are inserted plain; here we either
@@ -485,14 +533,14 @@ export function initProfitChart(root) {
       // With-Pulse is far enough ahead and there's vertical room to fit it.
       const wv = interpAt(WITH, ewf), wov = interpAt(WITHOUT, ewf)
       const mult = wov > 0 ? wv / wov : Infinity
-      const bh = mob ? 40 : 26
-      if (wv > 0 && wov > 0 && mult >= MULTIPLIER_THRESHOLD && Math.abs(oy - wy) >= bh + 12) {
+      const bh = mob ? 66 : 26
+      if (ewf >= MULTIPLIER_START_WK && wv > 0 && wov > 0 && mult >= MULTIPLIER_THRESHOLD && Math.abs(oy - wy) >= bh + 12) {
         const my = (wy + oy) / 2
         const label = (mult >= 10 ? Math.round(mult) : mult.toFixed(1)) + '×'
-        const bw = mob ? 86 : 54
+        const bw = mob ? 134 : 54
         sc.push(svgEl('g', { transform: `translate(${sx},${my})` }, [
           svgEl('rect', { x: -bw / 2, y: -bh / 2, width: bw, height: bh, rx: bh / 2, fill: 'rgba(8,12,20,.94)', stroke: 'rgba(87,157,255,.55)', 'stroke-width': mob ? 1.6 : 1 }),
-          svgEl('text', { x: 0, y: mob ? 8 : 5, 'text-anchor': 'middle', 'font-size': mob ? 24 : 15, 'font-weight': 700, 'font-family': MONO, fill: C.accentBright, text: label }),
+          svgEl('text', { x: 0, y: mob ? 15 : 5, 'text-anchor': 'middle', 'font-size': mob ? 44 : 15, 'font-weight': 700, 'font-family': MONO, fill: C.accentBright, text: label }),
         ]))
       }
       kids.push(svgEl('g', null, sc))
@@ -533,12 +581,16 @@ export function initProfitChart(root) {
     scheduleIdle(TIMING.idleRestartSec)
   }
   function handleTouch(e) {
+    // On mobile, scrubbing is driven by the slider under the chart, not by
+    // dragging directly on the SVG — let the touch fall through to page scroll.
+    if (state.isMobile) return
     if (!e.touches || !e.touches[0]) return
     inGraph = true; if (state.playing) stopPlay(); clearIdle()
     const wk = weekFromEvent(e.touches[0].clientX, e.currentTarget)
     if (wk !== state.hover) { state.hover = wk; render() }
   }
   function handleTouchEnd() {
+    if (state.isMobile) return
     inGraph = false
     if (state.hover !== null) { state.hover = null; render() }
     scheduleIdle(TIMING.idleRestartSec)
@@ -633,6 +685,9 @@ export function initProfitChart(root) {
   }
   function scheduleIdle(sec, extra) {
     if (reduced) return
+    // Mobile has no idle-restart: the walkthrough plays once on load, and after
+    // that the slider is fully manual — we never re-arm autoplay behind the user.
+    if (state.isMobile) return
     if (idleTimer) clearTimeout(idleTimer)
     idleTimer = setTimeout(() => {
       // Don't auto-resume a button-paused chart — pause stays until Play is clicked.
@@ -666,6 +721,19 @@ export function initProfitChart(root) {
       if (state.revealed) return
       state.revealed = true
       render()
+      if (reduced) return
+      if (state.isMobile) {
+        // Mobile: kick off the walkthrough once, 1s after the line draw-on has
+        // fully settled (the gap fade is the last element to finish). No idle
+        // loop afterwards — see scheduleIdle.
+        const drawSettleMs = TIMING.lineDrawMs + Math.round(TIMING.lineDrawMs * 0.4)
+        if (initialPlayTimer) clearTimeout(initialPlayTimer)
+        initialPlayTimer = setTimeout(() => {
+          initialPlayTimer = null
+          if (!inGraph && !state.playing && !state.paused) play()
+        }, drawSettleMs + 1000)
+        return
+      }
       scheduleIdle(TIMING.autoStartDelaySec, 1800)
     },
     // Start the walkthrough now (no idle wait). No-op if already playing.
